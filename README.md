@@ -56,7 +56,9 @@ type Result struct {
 	SE_log string   // 系统错误日志信息
 }
 ```
-### 可用的包外调用函数
+
+## 可用的包外调用函数
+
 可以据此编写适用于个人的main.go
 ```go
 // compiler.go	编译用户代码
