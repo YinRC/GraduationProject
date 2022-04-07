@@ -1,4 +1,4 @@
-# GraduationProject
+# open_judge
 **A testing machine for green hand ！(Linux only)**
 
 ## 常量部分
