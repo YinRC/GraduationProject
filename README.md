@@ -89,7 +89,7 @@ func (cfg *Config) SetFromCmd() (err error)	// [可选]是否从命令行设置c
         "OutputSize": 104857600
 }
 ```
-## 命令行选项
+### 命令行选项
 ```go
 // setting.go
 flag.StringVar(&lang, "l", "cpp", "编译所用的语言(小写)-默认为C++语言" )
