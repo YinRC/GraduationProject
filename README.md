@@ -1,5 +1,5 @@
 # GraduationProject
-**A testing machine for green hand ！**
+**A testing machine for green hand ！(Linux only)**
 
 ## 常量部分
 ```html
@@ -59,17 +59,20 @@ type Result struct {
 ### 可用的包外调用函数
 可以据此编写适用于个人的main.go
 ```go
-// compiler.go
+// compiler.go	编译用户代码
 func Compile(lang string, codePath string, tmpPath string) (tmp tmpFilePath, err error)
-// executor.go
+// executor.go	运行二进制文件
 func RunBinFile(cfg Config, tmp tmpFilePath, rst *Result) error
-// utils.go
-func String(result Result) {    // 输出判题结果（Result结构体）
+// utils.go	输出判题结果（Result结构体）
+func String(result Result) {
 	b, _ := json.Marshal(result)
 	var out bytes.Buffer
 	json.Indent(&out, b, "", "\t")
 	fmt.Printf("%+v\n", result)
 }
+// setting.go
+func (cfg *Config) GetConfig() (err error)	// 从文件config.json中读取设置的参数并应用
+func (cfg *Config) SetFromCmd() (err error)	// [可选]是否从命令行设置config.json文件
 ```
 ## config.json
 ```json
@@ -113,24 +116,27 @@ func main() {
 		//fmt.Println(err.Error())
 	//}
 	
+	// 读取并应用config.json，变量cfg接收设置信息
 	var cfg oj.Config
 	err := cfg.GetConfig()
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-
+	
+	// 编译用户代码
 	tmpFilePath, err := oj.Compile(cfg.Lang, cfg.CodePath, "tmp")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-
+	
+	// 运行用户程序，变量rst收集测评结果
 	var rst oj.Result
 	err = oj.RunBinFile(cfg, tmpFilePath, &rst)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 
-	//fmt.Printf("%+v", rst)
+	// 终端输出测评结果
 	oj.String(rst)
 }
 ```
