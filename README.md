@@ -108,7 +108,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/GraduationProject"
+	"github.com/open_judge"
 )
 
 func main() {
