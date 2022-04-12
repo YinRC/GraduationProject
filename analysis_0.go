@@ -23,11 +23,16 @@ func analysis_0(cfg Config, pid int, rst *Result) (err error) {
 
 	// KB
 	rst.Memory = int(rusage.Minflt*int64(syscall.Getpagesize()/1024))
+	if rst.Memory > cfg.Memory {
+		rst.Flag = MLE
+	}
 
 	if status.Signaled() {
 		signal := status.Signal()
-
-		if signal == syscall.SIGSEGV {
+		fmt.Println(signal)
+		if signal == syscall.SIGFPE {
+			rst.Flag = RE
+		} else if signal == syscall.SIGSEGV {
 			if rst.Memory > cfg.Memory {
 				rst.Flag = MLE
 			} else {
@@ -47,6 +52,7 @@ func analysis_0(cfg Config, pid int, rst *Result) (err error) {
 			}
 		}
 	}
+	
 
 	if rst.Flag == TLE {
 		rst.Time = 0
