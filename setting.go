@@ -62,8 +62,8 @@ func (cfg *Config) SetFromCmd() (err error) {
 		outputSize int
 	)
 
-	flag.StringVar(&lang, "l", "c", "编译所用的语言(小写)-默认为C语言" )
-	flag.StringVar(&codePath, "code", "code/ac.c", "代码的路径")
+	flag.StringVar(&lang, "l", "cpp", "编译所用的语言(小写)-默认为C++语言" )
+	flag.StringVar(&codePath, "code", "code/ac.cpp", "代码的路径")
 	flag.StringVar(&caseInPath, "in", "data/1.in", "测试用例路径")
 	flag.StringVar(&caseOutPath, "out", "data/1.out", "测试用例路径")
 	flag.StringVar(&workDir, "work", "work", "工作路径")
@@ -72,9 +72,9 @@ func (cfg *Config) SetFromCmd() (err error) {
 	flag.IntVar(&outputSize, "s", 100*1024*1024, "程序输出大小限制")
 
 	flag.Parse()
-	fmt.Printf("编程语言：%v\n代码路径：%v\n用例输入：%v\n用例输出：%v\n工作目录：%v\n程序时间限制（ms）：%v\n程序空间限制（KB）：%v\n程序输出限制（B）：%v\n", lang, codePath, caseInPath, caseOutPath)
+	fmt.Printf("编程语言：%v\n代码路径：%v\n用例输入：%v\n用例输出：%v\n工作目录：%v\n程序时间限制（ms）：%v\n程序空间限制（KB）：%v\n程序输出限制（B）：%v\n", lang, codePath, caseInPath, caseOutPath, workDir, time, memory, outputSize)
 	*cfg = Config {
-		Lang:			"c",
+		Lang:			lang,
 
 		CodePath:		codePath,
 		CaseInPath:		caseInPath,
