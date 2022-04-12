@@ -55,7 +55,7 @@ func setRunLimit(time int, memory int, outputSize int) (err error) {
 
 	// set outputSize size limit
 	rlimit.Cur = uint64(outputSize)
-	rlimit.Max = rlimit.Cur
+	rlimit.Max = rlimit.Cur+1
 	err = syscall.Setrlimit(syscall.RLIMIT_FSIZE, &rlimit)
 	if err != nil {
 		return fmt.Errorf("set outputSize limit fail")
