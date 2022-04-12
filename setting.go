@@ -68,8 +68,8 @@ func (cfg *Config) SetFromCmd() (err error) {
 	flag.StringVar(&caseOutPath, "out", "data/1.out", "测试用例路径")
 	flag.StringVar(&workDir, "work", "work", "工作路径")
 	flag.IntVar(&time, "t", 1000, "程序时间限制")
-	flag.IntVar(&memory, "m", 5000, "程序空间限制")
-	flag.IntVar(&outputSize, "s", 100*1024*1024, "程序输出大小限制")
+	flag.IntVar(&memory, "m", 500, "程序空间限制")
+	flag.IntVar(&outputSize, "s", 100, "程序输出大小限制")
 
 	flag.Parse()
 	fmt.Printf("编程语言：%v\n代码路径：%v\n用例输入：%v\n用例输出：%v\n工作目录：%v\n程序时间限制（ms）：%v\n程序空间限制（KB）：%v\n程序输出限制（B）：%v\n", lang, codePath, caseInPath, caseOutPath, workDir, time, memory, outputSize)
