@@ -32,6 +32,11 @@ func RunBinFile(cfg Config, tmp tmpFilePath, rst *Result) error {
 
 		fd int
 	)
+	
+	if !isFileExist(tmp.tmpProgramPath) {
+		rst.Flag = CE
+		return fmt.Errorf("compile fail")
+	}
 
 	pid, err = fork_cpp()
 	if err != nil {
@@ -42,6 +47,7 @@ func RunBinFile(cfg Config, tmp tmpFilePath, rst *Result) error {
 
 	if pid == 0 {
 		var child_err error
+
 		// 输入重定向为 case in
 		fd,child_err := getFD(cfg.CaseInPath, os.O_RDONLY, 0)
 		if child_err != nil {
