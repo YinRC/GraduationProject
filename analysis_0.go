@@ -5,35 +5,30 @@ import (
 	"fmt"
 )
 
-func analysis_0(cfg Config, pid int, rst *Result) (err error) {
+func analysis_0(p_cfg *Problem, pid int, rst *Result) (err error) {
 	var (
 		status syscall.WaitStatus
 		rusage syscall.Rusage
 	)
-
-	_, err = syscall.Wait4(pid, &status, syscall.WUNTRACED, &rusage)
-	if err != nil {
-		return fmt.Errorf("wait4 fail")
+	_, errMsg := syscall.Wait4(pid, &status, syscall.WUNTRACED, &rusage)
+	if errMsg != nil {
+		return errMsg
 	}
-
 	// MS
-	uTimeUsed := int(rusage.Utime.Sec*1000+int64(rusage.Utime.Usec/1000))
-	sTimeUsed := int(rusage.Stime.Sec*1000+int64(rusage.Stime.Usec/1000))
+	uTimeUsed := int(rusage.Utime.Sec*1000 + int64(rusage.Utime.Usec/1000))
+	sTimeUsed := int(rusage.Stime.Sec*1000 + int64(rusage.Stime.Usec/1000))
 	rst.Time = uTimeUsed + sTimeUsed
-
 	// KB
-	rst.Memory = int(rusage.Minflt*int64(syscall.Getpagesize()/1024))
-	if rst.Memory > cfg.Memory {
-		rst.Flag = MLE
-	}
-
+	rst.Memory = int(rusage.Minflt * int64(syscall.Getpagesize()/1024))
+	
+	// 接收信号
 	if status.Signaled() {
 		signal := status.Signal()
 		fmt.Println(signal)
 		if signal == syscall.SIGFPE {
 			rst.Flag = RE
 		} else if signal == syscall.SIGSEGV {
-			if rst.Memory > cfg.Memory {
+			if rst.Memory > p_cfg.Memory {
 				rst.Flag = MLE
 			} else {
 				rst.Flag = RE
@@ -43,22 +38,32 @@ func analysis_0(cfg Config, pid int, rst *Result) (err error) {
 		} else if signal == syscall.SIGXCPU {
 			rst.Flag = TLE
 		} else if signal == syscall.SIGKILL {
-			if rst.Time > cfg.Time {
+			if rst.Time > p_cfg.Time {
 				rst.Flag = TLE
-			} else if rst.Memory > cfg.Memory {
+			} else if rst.Memory > p_cfg.Memory {
 				rst.Flag = MLE
 			} else {
 				rst.Flag = AC
 			}
 		}
+	} else {
+		if rst.Time > p_cfg.Time {
+			rst.Flag = TLE
+		} else if rst.Memory > p_cfg.Memory {
+			rst.Flag = MLE
+		} else {
+			rst.Flag = AC
+		}
 	}
 	
-
 	if rst.Flag == TLE {
 		rst.Time = 0
+		rst.Memory = 0
 	} else if rst.Flag == MLE {
+		rst.Time = 0
 		rst.Memory = 0
 	}
+	// fmt.Println(rst.Flag)
 	return nil
 }
 

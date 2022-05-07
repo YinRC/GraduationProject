@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"github.com/satori/go.uuid"
 	"bytes"
+	"regexp"
 )
 
 const (
@@ -57,6 +58,22 @@ func Compile(lang string, codePath string, tmpPath string) (tmp tmpFilePath, err
 		return tmp, fmt.Errorf("get code content fail")
 	}
 
+	// 先去掉注释，以免影响下面的判断
+	r_line_comment := regexp.MustCompile(`//[\s\S]*?\n`)
+	r_block_comment := regexp.MustCompile(`/\*[\s\S]*?\*/`)
+	code = r_line_comment.ReplaceAll(code, []byte(""))
+	code = r_block_comment.ReplaceAll(code, []byte(""))
+
+	// stdlib.h: system("reboot")
+	if ok, _ := regexp.Match(`#[ \t]*?include[ \t]*?<stdlib.h>`, code); ok {
+		return tmp, fmt.Errorf("Error: stdlib.h is not supported")
+	}
+	
+	// unistd.h: exec
+	if ok, _ := regexp.Match(`#[ \t]*?include[ \t]*?<unistd.h>`, code); ok {
+		return tmp, fmt.Errorf("Error: unistd.h is not supported")
+	}
+
 	_, err = fp0.WriteString(string(code))
 	if err != nil {
 		return tmp, fmt.Errorf("write string fail")
@@ -65,7 +82,7 @@ func Compile(lang string, codePath string, tmpPath string) (tmp tmpFilePath, err
 
 	runStr = fmt.Sprintf(runStr, tmpCodePath, tmpProgramPath)
 	// test command
-	fmt.Println(runStr)
+	// fmt.Println(runStr)
 	args := strings.Split(runStr, " ")
 	cmd := exec.Command(args[0], args[1:]...)
 	var stderr bytes.Buffer

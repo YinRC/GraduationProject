@@ -2,11 +2,15 @@ package oj
 
 import (
 	"os"
+	"os/exec"
 	"fmt"
-	"math"
 	"syscall"
 	"bytes"
-	"encoding/json"
+	"encoding/binary"
+	"regexp"
+	"math"
+	"io/ioutil"
+	"strconv"
 )
 
 
@@ -26,46 +30,80 @@ func getFD(path string, flag int, perm uint32) (fd int, err error) {
 	return fd, nil
 }
 
-func setRunLimit(time int, memory int, outputSize int) (err error) {
-	var rlimit syscall.Rlimit
+func rmBlank(text *[]byte) {
+	r_blank := regexp.MustCompile(`[\s]+`)
+	*text = r_blank.ReplaceAll(*text, []byte(""))
+}
 
-	// set time limit (CPU time in seconds)
-	rlimit.Cur = uint64(math.Ceil(float64(time)/1000.0))
-	rlimit.Max = rlimit.Cur + 1
-	err = syscall.Setrlimit(syscall.RLIMIT_CPU, &rlimit)
-	if err != nil {
-		return fmt.Errorf("set cpu time limit fail")
+
+// 判断是否是空白字符
+func isBlank(b byte) bool {
+	return b == ' ' || b == '\n' || b == '\t' || b == '\f' || b == '\r' || b == '\v'
+}
+
+// 将字节序列转换成小数
+func byteToFloat64(bytes []byte) float64 {
+	bits := binary.LittleEndian.Uint64(bytes)
+	return math.Float64frombits(bits)
+}
+
+// 生成标程输出和用户输出的文件名
+func findua(i, suffix int) string {
+	if suffix == 0 {
+		return strconv.Itoa(i)+".a"
+	} else {
+		return strconv.Itoa(i)+".u"
 	}
+}
 
-	// set memory limit: data + heap
-	rlimit.Cur = uint64(memory*1024)
-	rlimit.Max = rlimit.Cur
-	err = syscall.Setrlimit(syscall.RLIMIT_DATA, &rlimit)
+// 检查是不是直接打印了结果
+func isCodeSizeFine(acPath string, tmpCodePath string) (bool, error) {
+	ac, err := ioutil.ReadFile(acPath)
 	if err != nil {
-		return fmt.Errorf("set memory[data] limit fail")
+		return false, fmt.Errorf("read %s fail", acPath)
 	}
-
-	// set memory limit: stack
-	rlimit.Cur = uint64(memory*1024)
-	rlimit.Max = rlimit.Cur
-	err = syscall.Setrlimit(syscall.RLIMIT_STACK, &rlimit)
+	code, err := ioutil.ReadFile(tmpCodePath)
 	if err != nil {
-		return fmt.Errorf("set memory[stack] limit fail")
+		return false, fmt.Errorf("read %s fail", tmpCodePath)
 	}
+	rmBlank(&ac)
+	rmBlank(&code)
+	if len(ac)/2 > len(code) || len(code)/2 > len(ac) {
+		return false, nil
+	}
+	return true, nil
+}
 
-	// set outputSize size limit
-	rlimit.Cur = uint64(outputSize)
-	rlimit.Max = rlimit.Cur+1
-	err = syscall.Setrlimit(syscall.RLIMIT_FSIZE, &rlimit)
+// 执行 make clean 清除 1 1.a 1.u
+func makeClean(problemDir string) error {
+	cmd := exec.Command("make", "clean", "-s", "-C", problemDir)
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	err := cmd.Run()
 	if err != nil {
-		return fmt.Errorf("set outputSize limit fail")
+		return fmt.Errorf(err.Error()+": "+stderr.String())
 	}
 	return nil
 }
 
-func String(result Result) {
-	b, _ := json.Marshal(result)
-	var out bytes.Buffer
-	json.Indent(&out, b, "", "\t")
-	fmt.Printf("%+v\n", result)
+// 打印指定的测试样例、标程输出、用户输出
+func good(case_i int, problemDir string) (hint string) {
+	in, _ := ioutil.ReadFile(problemDir+strconv.Itoa(case_i))
+	ans, _ := ioutil.ReadFile(problemDir+findua(case_i, 0))
+	out, _ := ioutil.ReadFile(problemDir+findua(case_i, 1))
+	hint = fmt.Sprintf("\tcase in:\n%v\n\tans:\n%v\n\tout:\n%v\n", in, ans, out)
+	return hint
 }
+
+func (rst *Result)String(mode int) {
+	if mode != NormalMode {
+		fmt.Printf("-----------\nRESULT: %s\nTIME: %v\tMEMORY: %v\n-----------\nSCORE: %d\n-----------\nHINT:\n%s-----------\n", rst.Flag, rst.Time, rst.Memory, rst.Score, rst.Hint)
+	} else {
+		fmt.Printf("-----------\nRESULT: %s\nTIME: %v\tMEMORY: %v\n-----------\n", rst.Flag, rst.Time, rst.Memory)
+	}
+}
+
+//func IsNum(s string) bool {
+	//_, err := strconv.ParseFloat(s, 64)
+	//return err == nil
+//}
