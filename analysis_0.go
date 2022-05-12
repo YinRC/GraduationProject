@@ -56,10 +56,7 @@ func analysis_0(p_cfg *Problem, pid int, rst *Result) (err error) {
 		}
 	}
 	
-	if rst.Flag == TLE {
-		rst.Time = 0
-		rst.Memory = 0
-	} else if rst.Flag == MLE {
+	if rst.Flag != AC {
 		rst.Time = 0
 		rst.Memory = 0
 	}

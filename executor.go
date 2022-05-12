@@ -61,14 +61,13 @@ func Run(p_cfg Problem, problemDir string, tmp tmpFilePath, rst *Result) (case_i
 		} else if p_cfg.Mode == GrammarMode && rst.Flag != AC {
 			return -1, nil, nil
 		// 普通模式、浮点数模式：有错误返回未通过的样例
-		}else if rst.Flag != AC {
+		} else if rst.Flag != AC {
 			//fmt.Println("$$$")
 			return i, nil, nil
 		// AC 的情况，记录初步结果
-		}else {
+		} else {
 			case_rst[i-1] = *rst
 		}
-		//fmt.Println("1")
 	}
 	// 全部初步 AC 或完成比例模式
 	return 0, case_rst, nil
@@ -77,8 +76,6 @@ func Run(p_cfg Problem, problemDir string, tmp tmpFilePath, rst *Result) (case_i
 
 // 题目设置、用户程序路径、测试样例路径、判题结果
 func runBinFile(p_cfg *Problem, tmpProgramPath string, casePath string, rst *Result) error {
-	//_ = os.Remove(workDir + "/usr.out")
-	//_ = os.Remove(workDir + "/usr.err")
 	var (
 		pid int
 		err error
@@ -103,25 +100,23 @@ func runBinFile(p_cfg *Problem, tmpProgramPath string, casePath string, rst *Res
 	if pid == 0 {
 		// reapChildren()
 		// 输入重定向为 $(no) [i]
-		fd,child_err := getFD(casePath, os.O_RDONLY, 0)
+		fd, child_err := getFD(casePath, os.O_RDONLY, 0)
 		if child_err != nil {
-			//return fmt.Errorf("get case in fd fail")
-			return child_err
+			return fmt.Errorf("get %s fd fail: %s", casePath, child_err.Error())
 		}
 		child_err = syscall.Dup2(fd, syscall.Stdin)
 		if child_err != nil {
-			return fmt.Errorf("dup2 case in fail")
+			return fmt.Errorf("dup2 %s fail", casePath)
 		}
 
-		// 输出重定向为 $(no).u [i.u]
-		fd, child_err = getFD(casePath+".u", os.O_WRONLY | os.O_CREATE, 0644)
+		// 输出重定向为 $(no).usr [i.usr]
+		fd, child_err = getFD(casePath+".usr", os.O_WRONLY | os.O_CREATE, 0644)
 		if child_err != nil {
-			//return fmt.Errorf("get usr.out fd fail")
-			return child_err
+			return fmt.Errorf("get %s.usr fd fail: %s", casePath, child_err.Error())
 		}
 		child_err = syscall.Dup2(fd, syscall.Stdout)
 		if child_err != nil {
-			return fmt.Errorf("dup2 usr.out fail")
+			return fmt.Errorf("dup2 %s.usr fail", casePath)
 		}
 		
 		// 设置程序运行环境 (time--memory--outputSize)
@@ -134,8 +129,6 @@ func runBinFile(p_cfg *Problem, tmpProgramPath string, casePath string, rst *Res
 		if child_err != nil {
 			return fmt.Errorf("exec bin file fail")
 		}
-		// os.Exit(0)
-		
 		return nil
 	} else {
 		// 通过信号收集信息进行初步判断，rst.Flag\rst.Time\rst.Memory
@@ -146,12 +139,12 @@ func runBinFile(p_cfg *Problem, tmpProgramPath string, casePath string, rst *Res
 			return err
 		}
 		//reapChildren()
-
 		
 	}
 	return nil
 }
 
+// 收割僵尸进程
 func reapChildren() {
 	for {
 		var wstatus syscall.WaitStatus

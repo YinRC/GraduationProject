@@ -100,8 +100,8 @@ func (cfg *Config) SetFromCmd() (err error) {
 
 	flag.StringVar(&lang, "l", "cpp", "编译所用的语言(小写)-默认为C++语言" )
 
-	flag.StringVar(&problem, "p", "problem/1", "题目路径")
-	flag.StringVar(&code, "c", "code/usr.c", "代码路径")
+	flag.StringVar(&problem, "p", "problem/2", "题目路径")
+	flag.StringVar(&code, "c", "code/usr1.c", "代码路径")
 	// flag.StringVar(&work, "w", "work", "工作路径")
 	flag.StringVar(&tmp, "tmp", "tmp", "临时代码、程序存放路径")
 
