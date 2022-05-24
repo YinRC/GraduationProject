@@ -87,23 +87,26 @@ func (p_cfg *Problem) GetProblemConfig(path string) (err error) {
 	return nil
 }
 
-// [可选]是否从命令行设置config.json文件
+// 是否从命令行设置config.json文件
 func (cfg *Config) SetFromCmd() (err error) {
 	var (
 		lang string
 
 		problem string
 		code string
-		//work string
 		tmp string
 	)
-
-	flag.StringVar(&lang, "l", "cpp", "编译所用的语言(小写)-默认为C++语言" )
-
-	flag.StringVar(&problem, "p", "problem/2", "题目路径")
-	flag.StringVar(&code, "c", "code/usr1.c", "代码路径")
-	// flag.StringVar(&work, "w", "work", "工作路径")
-	flag.StringVar(&tmp, "tmp", "tmp", "临时代码、程序存放路径")
+	
+	err = cfg.GetConfig()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	
+	flag.StringVar(&lang, "l", cfg.Lang, "编译所用的语言(小写)-默认为C++语言" )
+	flag.StringVar(&problem, "p", cfg.ProblemDir, "题目路径")
+	flag.StringVar(&code, "c", cfg.CodePath, "代码路径")
+	flag.StringVar(&tmp, "tmp", cfg.TmpDir, "临时代码、程序存放路径")
 
 
 	flag.Parse()
@@ -113,7 +116,6 @@ func (cfg *Config) SetFromCmd() (err error) {
 
 		ProblemDir:		problem,
 		CodePath:		code,
-		//WorkDir:		work,
 		TmpDir:			tmp,
 	}
 	err = cfg.setConfig()
