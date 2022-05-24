@@ -303,13 +303,6 @@ func main() {
 		fmt.Println(err.Error())
 		return
 	}
-
-	// 从同目录下的config.json文件中读取测评机设置
-	err = cfg.GetConfig()
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
 	
 	// 从config.json读取题目目录，在题目路径中读取config.json即题目设置
 	err = p_cfg.GetProblemConfig(cfg.ProblemDir+"/"+"config.json")
