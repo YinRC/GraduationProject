@@ -25,6 +25,7 @@ func analysis_1 (p_cfg Problem, case_i int, case_rst []Result, problemDir, tmpCo
 				} else if rst.Flag != AC {
 					rst.Time = 0
 					rst.Memory = 0
+					// 语法结构模式
 					if p_cfg.Mode == GrammarMode {
 						spj(GrammarMode, nil, p_cfg.GrammarOptionMap, tmpCodePath, rst)
 						if rst.Flag == WA || rst.Flag == PC {
