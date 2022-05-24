@@ -35,7 +35,7 @@ func analysis_0(p_cfg *Problem, pid int, rst *Result) (err error) {
 			}
 		} else if signal == syscall.SIGXFSZ {
 			rst.Flag = OLE
-		} else if signal == syscall.SIGXCPU {
+		} else if signal == syscall.SIGXCPU || signal == syscall.SIGALRM || signal == syscall.SIGVTALRM {
 			rst.Flag = TLE
 		} else if signal == syscall.SIGKILL {
 			if rst.Time > p_cfg.Time {
