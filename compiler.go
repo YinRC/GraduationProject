@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	GNU_C = "gcc %s -o %s"
-	GNU_CPP = "g++ %s -o %s"
+	GNU_C = "gcc %s -o %s -lm"
+	GNU_CPP = "g++ %s -o %s -lm"
 )
 
 type tmpFilePath struct {
