@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"os/exec"
 	"log"
+	"unsafe"
 )
 
 type Result struct {
@@ -23,6 +24,21 @@ type Result struct {
 	SE_log string
 }
 
+type ITimerVal struct  {
+	ItInterval TimeVal
+	ItValue TimeVal
+}
+
+type TimeVal struct {
+	TvSec uint64
+	TvUsec uint64
+}
+
+const (
+	ITIMER_REAL = 0
+	ITIMER_VIRTUAL = 1
+	ITIMER_PROF = 2
+)
 
 func fork_cpp() (int, error) {
 	pid, _, errMsg := syscall.Syscall(syscall.SYS_FORK, 0, 0, 0)
@@ -162,8 +178,17 @@ func reapChildren() {
 	}
 }
 
+func setITimer(it_val *ITimerVal) error {
+	_, _, errMsg := syscall.RawSyscall(syscall.SYS_SETITIMER, ITIMER_REAL, uintptr(unsafe.Pointer(it_val)), 0)
+	if errMsg != 0 {
+		return fmt.Errorf("syscall setitimer fail")
+	}
+	return nil
+}
+
 func setRunLimit(time int, memory int, outputSize int) (err error) {
 	var rlimit syscall.Rlimit
+	var it_val ITimerVal
 
 	// set time limit (CPU time in seconds)
 	rlimit.Cur = uint64(math.Ceil(float64(time)/1000.0))
@@ -171,6 +196,16 @@ func setRunLimit(time int, memory int, outputSize int) (err error) {
 	err = syscall.Setrlimit(syscall.RLIMIT_CPU, &rlimit)
 	if err != nil {
 		return fmt.Errorf("set cpu time limit fail")
+	}
+	
+	// set time limit (setitimer)
+	it_val.ItInterval.TvSec = uint64(math.Ceil(float64(time)/1000.0))
+	it_val.ItInterval.TvUsec = uint64(time % 1000 * 1000)
+	it_val.ItValue.TvSec = it_val.ItInterval.TvSec
+	it_val.ItValue.TvUsec = it_val.ItInterval.TvUsec
+	err = setITimer(&it_val)
+	if err != nil {
+		return err
 	}
 
 	// set memory limit: data + heap
