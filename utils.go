@@ -113,6 +113,9 @@ func min(a int, b int) int {
 
 // 只有特判时显示 Score 和 Hint
 func (rst *Result) String(mode int) {
+	if rst.Flag == AC {
+		rst.Score = 100
+	}
 	if rst.Flag != SE {
 		// 特判模式输出
 		if mode != NormalMode {
