@@ -236,11 +236,18 @@ func spj_incomplete(case_rst []Result, rst *Result) error {
 	}
 	// 根据通过的测试样例占全部测试样例的比例给出分数
 	rst.Score = (count / caseNum) * 100
-	// 如果部分正确：给出平均的时间空间数据
-	if count != 0 {
-		rst.Flag = PC
+	if count == len(case_rst) {
+		rst.Flag = AC
 		rst.Time = time / count
 		rst.Memory = memory / count
+		rst.Hint = "good job\n"
+	// 如果部分正确：给出平均的时间空间数据
+	} else if count != 0 {
+		rst.Flag = PC
+		rst.Score = int(float64(count) / float64(len(case_rst)) * 100)
+		rst.Time = time / count
+		rst.Memory = memory / count
+		rst.Hint = ""
 		// 格式输出各测试样例的结果
 		for i := 1; i <= caseNum; i++ {
 			if i % 4 != 0 {
@@ -257,7 +264,7 @@ func spj_incomplete(case_rst []Result, rst *Result) error {
 		rst.Flag = WA
 		rst.Time = 0
 		rst.Memory = 0
-		rst.Hint = "IncompleteMode: all fail"
+		rst.Hint = "IncompleteMode: all fail\n"
 	}
 	return nil
 }
