@@ -76,9 +76,9 @@ type Problem struct {
 
 	AC_Path string		// 标程的相对路径，根为题目目录
 	
-	Time int		// 题目的时间限制
-	Memory int		// 题目的空间限制
-	OutputSize int		// 题目的输出限制
+	Time int		// 题目的时间限制——MS
+	Memory int		// 题目的空间限制——KB
+	OutputSize int		// 题目的输出限制——B
 	
 	Mode int		// 设定题目的判题模式
 				// 0-普通 1-语法结构 2-浮点数 3-完成比例
@@ -128,6 +128,9 @@ func Run(p_cfg Problem, problemDir string, tmp tmpFilePath, rst *Result) (case_i
 func Judge(p_cfg Problem, case_i int, case_rst []Result, tmp tmpFilePath, problemDir string, rst *Result) (err error)
 // utils.go	输出判题结果（Result结构体）
 func (rst *Result) String(mode int) {
+	if rst.Flag == AC {
+		rst.Score = 100
+	}
 	if rst.Flag != SE {
 		// 特判模式输出
 		if mode != NormalMode {
