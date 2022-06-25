@@ -45,6 +45,8 @@ func analysis_0(p_cfg *Problem, pid int, rst *Result) (err error) {
 			} else {
 				rst.Flag = AC
 			}
+		} else {
+			rst.Flag = RE
 		}
 	} else {
 		if rst.Time > p_cfg.Time {

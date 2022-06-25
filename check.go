@@ -70,7 +70,7 @@ func checker(problemDir string, mode int, i int, rst *Result) (err error) {
 		flag, hint := diffUtil_0(usr, ans, mode)
 		rst.Flag = flag
 		rst.Hint += hint
-		if flag != AC {
+		if flag != AC && hint != "wrong answer\n" {
 			rst.Hint += good(i, problemDir)
 		}
 		// 通过了不计空白符的检测再严格检查，查出可能的 PE

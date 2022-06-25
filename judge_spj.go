@@ -48,7 +48,8 @@ func spj_grammar(tmpCodePath string, p_cfg_map map[string]int, rst *Result) erro
 		if ok, _ := regexp.Match(`#[ \t]*?include[ \t]*?<stdio.h>`, code); ok {
 			rst.Flag = WA
 			rst.Score = 0
-			return fmt.Errorf("violation: stdio.h is banned")
+			rst.Hint = "violation: stdio.h is banned\n"
+			return nil
 		}
 	}
 	// string.h
@@ -61,7 +62,8 @@ func spj_grammar(tmpCodePath string, p_cfg_map map[string]int, rst *Result) erro
 		if ok, _ := regexp.Match(`#[ \t]*?include[ \t]*?<string.h>`, code); ok {
 			rst.Flag = WA
 			rst.Score = 0
-			return fmt.Errorf("violation: string.h is banned")
+			rst.Hint = "violation: string.h is banned\n"
+			return nil
 		}
 	}
 	// ctype.h
@@ -74,7 +76,8 @@ func spj_grammar(tmpCodePath string, p_cfg_map map[string]int, rst *Result) erro
 		if ok, _ := regexp.Match(`#[ \t]*?include[ \t]*?<ctype.h>`, code); ok {
 			rst.Flag = WA
 			rst.Score = 0
-			return fmt.Errorf("violation: ctype.h is banned")
+			rst.Hint = "violation: ctype.h is banned\n"
+			return nil
 		}
 	}
 	// math.h
@@ -87,7 +90,8 @@ func spj_grammar(tmpCodePath string, p_cfg_map map[string]int, rst *Result) erro
 		if ok, _ := regexp.Match(`#[ \t]*?include[ \t]*?<math.h>`, code); ok {
 			rst.Flag = WA
 			rst.Score = 0
-			return fmt.Errorf("violation: math.h is banned")
+			rst.Hint = "violation: math.h is banned\n"
+			return nil
 		}
 	}
 	// 采分点（2）：main函数 int main([void]?){return 0;}
